@@ -1,7 +1,7 @@
 #
 # brozzler/behaviors.yaml - behavior configuration
 #
-# Copyright (C) 2014-2019 Internet Archive
+# Copyright (C) 2014-2024 Internet Archive
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,18 +18,45 @@
 
 # first matched behavior is used, so order matters here
 -
-  url_regex: '^https?://(?:www\.)?facebook\.com/.*$'
-  behavior_js_template: facebook.js
+  url_regex: '^https?://(?:www\.)?facebook\.com/ads/library/.*$'
+  behavior_js_template: umbraBehavior.js.j2
   request_idle_timeout_sec: 30
+  default_parameters:
+    interval: 1000
+    actions:
+      - selector: a[data-testid="snapshot_footer_link"]
+        childSelector: i[class="_271o img sp_KBE8sh--02o sx_5d0205"]
+        closeSelector: 'div._7lq1 > button'
+-
+  url_regex: '^https?://(?:www\.)?facebook\.com/.*$'
+  behavior_js_template: umbraBehavior.js.j2
+  request_idle_timeout_sec: 30
+  default_parameters:
+    actions:
+      - selector: a[rel="theater"], a[id="expanding_cta_close_button"]
+        closeSelector: 'a._xlt'
 -
   url_regex: '^https?://(?:www\.)?instagram\.com/.*$'
   behavior_js_template: umbraBehavior.js.j2
   default_parameters:
+    interval: 500
     actions:
-      - selector: button.coreSpriteDismissLarge
+      - selector: ._7UhW9, .glyphsSpriteGrey_Close
+        rmSelector: '.RnEpo'
       - selector: 'a>.eLAPa>.KL4Bh'
-        firstMatchOnly: true
+        limit: 1
+        rmSelector: '.RnEpo'
       - selector: a.coreSpriteRightPaginationArrow
+        repeatSameElement: true
+        rmSelector: '.RnEpo'
+-
+  url_regex: '^https?://www.opengov\.nsw\.gov\.au/publications.*$'
+  behavior_js_template: umbraBehavior.js.j2
+  request_idle_timeout_sec: 10
+  default_parameters:
+    interval: 1000
+    actions:
+      - selector: span.DV-trigger.DV-next
         repeatSameElement: true
 -
   url_regex: '^https?://americaspresidents\.si\.edu/gallery.*$'
@@ -38,7 +65,7 @@
     interval: 2500
     actions:
       - selector: div.see-more
-        firstMatchOnly: true
+        limit: 1
       - selector: li.next
         repeatSameElement: true
 -
@@ -46,13 +73,18 @@
   behavior_js_template: marquette_edu.js
   request_idle_timeout_sec: 10
 -
-  url_regex: '^https?://(?:www\.)?vimeo\.com/.*$'
-  behavior_js_template: vimeo.js
-  request_idle_timeout_sec: 10
--
   url_regex: '^https?://(?:www\.)?psu24.psu.edu/.*$'
   behavior_js_template: psu24.js
   request_idle_timeout_sec: 10
+-
+  url_regex: '^https?://(?:.*\.)?icaew\.com/.*$'
+  behavior_js_template: umbraBehavior.js.j2
+  default_parameters:
+    interval: 500
+    actions:
+      - selector: a#CybotCookiebotDialogBodyButtonAccept
+      - selector: .more-link a.cta-link
+        repeatSameElement: true
 -
   url_regex: '^https?://(?:www\.)?pm\.gc\.ca/.*$'
   behavior_js_template: umbraBehavior.js.j2
@@ -134,8 +166,12 @@
   url_regex: '^https?://(?:www\.)?moma.org/.*$'
   behavior_js_template: umbraBehavior.js.j2
   default_parameters:
+    interval: 300
     actions:
-      - selector: button[data-more-results-bottom-button]
+      - selector: 'div.link\/focus'
+        limit: 1
+      - selector: 'button.link\/focus'
+        repeatSameElement: true
 - # https://webarchive.jira.com/browse/ARI-4692
   url_regex: '^https?://(?:www\.)?fec.gov/data/.*$'
   behavior_js_template: fec_gov.js
@@ -177,9 +213,65 @@
   default_parameters:
     actions:
       - selector: img#navForward1
+- # https://webarchive.jira.com/browse/WT-3779
+  url_regex: '^https?://libraries.mit.edu/news/$'
+  behavior_js_template: umbraBehavior.js.j2
+  request_idle_timeout_sec: 10
+  default_parameters:
+    actions:
+      - selector: '#another'
+        repeatSameElement: true
+        repeatUntilSelector: '#another:has(style)'
+        limit: 1000
+- # https://webarchive.jira.com/browse/WT-3724
+  url_regex: '^https?://news.stanford.edu/press-center/?$'
+  default_parameters:
+    interval: 10
+    actions:
+      - selector: button[aria-label='Next page']
+        repeatSameElement: true
+        repeatUntilSelector: button[aria-label='Next page'][disabled]
+        extractOutlinks: true
+        extractOutlinksInLoop: true
+        limit: 1000
+- # https://webarchive.jira.com/browse/WT-3724
+  url_regex: '^https?://www.jacksonjc.com/obits/?$'
+  default_parameters:
+    interval: 10
+    actions:
+      - selector: .pagination > .next
+        repeatSameElement: true
+        repeatUntilSelector: .pagination > .next.disabled
+        extractOutlinks: true
+        extractOutlinksInLoop: true
+        limit: 1000
+- # https://webarchive.jira.com/browse/WT-3724
+  url_regex: '^https?://www.watsonmortuaryservice.com/obits/?$'
+  default_parameters:
+    interval: 10
+    actions:
+      - selector: '#next-page'
+        repeatSameElement: true
+        repeatUntilSelector: '#next-page.nav-disabled'
+        extractOutlinks: true
+        extractOutlinksInLoop: true
+        limit: 1000
+- # https://webarchive.jira.com/browse/WT-3724
+  url_regex: '^https?://aquatic-chemistry.ethz.ch/publications-and-awards/.+$'
+  default_parameters:
+    interval: 10
+    actions:
+      - selector: .EthPagination__button--next
+        repeatSameElement: true
+        repeatUntilSelector: .EthPagination__button--next[disabled]
+        extractOutlinks: true
+        extractOutlinksInLoop: true
+        limit: 1000
 - # default fallback behavior
   url_regex: '^.*$'
   behavior_js_template: umbraBehavior.js.j2
+  request_idle_timeout_sec: 10
   default_parameters:
+    interval: 10
     actions:
-      - selector: button.sc-button-play, .playButton, div.soundItem, .jwlist>a
+      - selector: button#didomi-notice-agree-button, button.sc-button-play, .playButton, div.soundItem, .jwlist>a, audio, video
